@@ -170,4 +170,4 @@ The current implementation uses **in-memory storage** for file chunks during tra
 - ✅ Server-independent
 - ✅ Any server can handle any chunk
 
-- With this stratergy the server can be considered stateless thus enabled for vertical scaling instead of horizontal scaling.
+- With this stratergy the server can be considered stateless thus enabled for horizontal scaling instead of limited to vertical scaling.
