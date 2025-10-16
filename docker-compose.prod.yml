@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # Redis for connection state management
+  redis:
+    image: redis:7-alpine
+    container_name: file-download-redis-prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - file-download-network
+    restart: unless-stopped
+
+  # Server with mTLS
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: file-download-server-prod
+    ports:
+      - "3443:3443"
+    environment:
+      - PORT=3443
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=production
+    volumes:
+      - ./downloads:/app/downloads
+      - ./server/certs:/app/certs:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - file-download-network
+    command: node server-mtls.js
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3443 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Client 1 with mTLS
+  client-1:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: file-download-client-1-prod
+    environment:
+      - CLIENT_ID=restaurant-1
+      - SERVER_URL=wss://server:3443
+      - NODE_ENV=production
+      - CERT_PATH=/app/certs
+    volumes:
+      - ./server/certs:/app/certs:ro
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - file-download-network
+    command: npm start -- --id restaurant-1 --server wss://server:3443 --mtls
+    restart: unless-stopped
+
+  # Client 2 with mTLS
+  client-2:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: file-download-client-2-prod
+    environment:
+      - CLIENT_ID=restaurant-2
+      - SERVER_URL=wss://server:3443
+      - NODE_ENV=production
+      - CERT_PATH=/app/certs
+    volumes:
+      - ./server/certs:/app/certs:ro
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - file-download-network
+    command: npm start -- --id restaurant-2 --server wss://server:3443 --mtls
+    restart: unless-stopped
+
+  # Client 3 with mTLS
+  client-3:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: file-download-client-3-prod
+    environment:
+      - CLIENT_ID=restaurant-3
+      - SERVER_URL=wss://server:3443
+      - NODE_ENV=production
+      - CERT_PATH=/app/certs
+    volumes:
+      - ./server/certs:/app/certs:ro
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - file-download-network
+    command: npm start -- --id restaurant-3 --server wss://server:3443 --mtls
+    restart: unless-stopped
+
+networks:
+  file-download-network:
+    driver: bridge
+
+volumes:
+  redis-data:

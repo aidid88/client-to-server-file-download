@@ -1,0 +1,27 @@
+{
+  "name": "file-download-server",
+  "version": "1.0.0",
+  "description": "Cloud server for downloading files from on-premise clients",
+  "main": "server.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "start:tls": "node server-tls.js",
+    "start:mtls": "node server-mtls.js",
+    "dev": "nodemon server.js",
+    "generate-certs": "node generate-certs.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "redis": "^3.1.2",
+    "commander": "^11.1.0",
+    "uuid": "^9.0.1",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

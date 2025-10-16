@@ -1,0 +1,47 @@
+node_modules
+npm-debug.log
+.git
+README.md
+.env
+.DS_Store
+*.log
+downloads/
+certs/*.key
+.vscode
+.idea
+```
+
+```
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+
+# Downloads
+downloads/
+*.txt
+
+# Certificates (SECURITY: Never commit private keys!)
+server/certs/*.pem
+server/certs/*.key
+server/certs/*.csr
+server/certs/*.srl
+server/certs/*.cnf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

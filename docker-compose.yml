@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Redis for connection state management
+  redis:
+    image: redis:7-alpine
+    container_name: file-download-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+
+  # Server
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: file-download-server
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development
+    volumes:
+      - ./downloads:/app/downloads
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    command: npm start
+
+  # Client 1
+  client-1:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: file-download-client-1
+    environment:
+      - CLIENT_ID=restaurant-1
+      - SERVER_URL=ws://server:3001
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - app-network
+    restart: on-failure
+    command: npm start -- --id restaurant-1 --server ws://server:3001
+
+  # Client 2
+  client-2:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: file-download-client-2
+    environment:
+      - CLIENT_ID=restaurant-2
+      - SERVER_URL=ws://server:3001
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - app-network
+    restart: on-failure
+    command: npm start -- --id restaurant-2 --server ws://server:3001
+
+  # Client 3
+  client-3:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: file-download-client-3
+    environment:
+      - CLIENT_ID=restaurant-3
+      - SERVER_URL=ws://server:3001
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - app-network
+    restart: on-failure
+    command: npm start -- --id restaurant-3 --server ws://server:3001
+
+networks:
+  app-network:
+    driver: bridge
+    name: file-download-network
+
+volumes:
+  redis-data:
