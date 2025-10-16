@@ -164,10 +164,12 @@ curl --cacert server/certs/ca-cert.pem \
 ### Scaling Considerations
 The current implementation uses **in-memory storage** for file chunks during transfer. For production horizontal scaling, consider:
 
+### Option 1: Object Storage (S3/MinIO)
+
 **Benefits:**
 - ✅ Unlimited scale
 - ✅ Durable (99.999999999%)
 - ✅ Server-independent
 - ✅ Any server can handle any chunk
 
-- With this stratergy the server can be considered stateless thus enabled for vertical scaling instead of horizontal scaling.
+- With this stratergy the server can be considered stateless thus enabled for horizontal scaling instead of limited to vertical scaling.
