@@ -30,7 +30,7 @@ This system enables a cloud-hosted server to download files from multiple on-pre
 ```
 ┌─────────────────────────────────┐
 │   Cloud Server (Express/WS)     │
-│  - REST API (:3000/:3443)       │
+│  - REST API (:3001/:3443)       │
 │  - WebSocket Server             │
 │  - Redis (State Management)     │
 └────────────┬────────────────────┘
@@ -122,18 +122,18 @@ docker-compose -f docker-compose.prod.yml exec server node cli.js download resta
 
 ```bash
 # List clients
-curl http://localhost:3000/api/clients
+curl http://localhost:3001/api/clients
 
 # Trigger download
-curl -X POST http://localhost:3000/api/download \
+curl -X POST http://localhost:3001/api/download \
   -H "Content-Type: application/json" \
   -d '{"clientId": "restaurant-1"}'
 
 # Check all downloads
-curl http://localhost:3000/api/downloads
+curl http://localhost:3001/api/downloads
 
 # Check specific download (use downloadId from previous response)
-curl http://localhost:3000/api/downloads/DOWNLOAD_ID_HERE
+curl http://localhost:3001/api/downloads/DOWNLOAD_ID_HERE
 ```
 
 - mTLS(HTTPS with mTLS):
