@@ -115,6 +115,50 @@ curl --cacert server/certs/ca-cert.pem \
 docker-compose -f docker-compose.prod.yml exec server node cli.js download restaurant-1
 ```
 
+## Usage / Available Endpoint
+
+### REST API with curl
+- Development (HTTP):
+
+```bash
+# List clients
+curl http://localhost:3000/api/clients
+
+# Trigger download
+curl -X POST http://localhost:3000/api/download \
+  -H "Content-Type: application/json" \
+  -d '{"clientId": "restaurant-1"}'
+
+# Check all downloads
+curl http://localhost:3000/api/downloads
+
+# Check specific download (use downloadId from previous response)
+curl http://localhost:3000/api/downloads/DOWNLOAD_ID_HERE
+```
+
+- mTLS(HTTPS with mTLS):
+```bash
+# List clients
+curl --cacert server/certs/ca-cert.pem \
+     --cert server/certs/restaurant-1-cert.pem \
+     --key server/certs/restaurant-1-key.pem \
+     https://localhost:3443/api/clients
+
+# Trigger download
+curl --cacert server/certs/ca-cert.pem \
+     --cert server/certs/restaurant-1-cert.pem \
+     --key server/certs/restaurant-1-key.pem \
+     -X POST https://localhost:3443/api/download \
+     -H "Content-Type: application/json" \
+     -d '{"clientId": "restaurant-1"}'
+
+# Check downloads
+curl --cacert server/certs/ca-cert.pem \
+     --cert server/certs/restaurant-1-cert.pem \
+     --key server/certs/restaurant-1-key.pem \
+     https://localhost:3443/api/downloads
+```
+
 ## Things to Improve
 
 ### Scaling Considerations
